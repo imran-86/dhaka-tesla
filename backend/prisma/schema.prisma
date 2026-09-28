@@ -6,3 +6,117 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  PASSENGER
+  DRIVER
+}
+
+enum TeslaStatus {
+  ONLINE
+  OFFLINE
+}
+
+enum RideStatus {
+  REQUESTED
+  MATCHED
+  DRIVER_ARRIVED
+  STARTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TESLAPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  phone        String?
+  createdAt    DateTime @default(now())
+
+  tesla        Tesla?
+  rideRequests RideRequest[]
+  payments     Payment[]
+
+  @@map("users")
+}
+
+model Tesla {
+  id        String      @id @default(uuid())
+  driverId  String      @unique
+  driver    User        @relation(fields: [driverId], references: [id])
+  name      String      @default("Bullet")
+  capacity  Int         @default(3)
+  status    TeslaStatus @default(OFFLINE)
+  createdAt DateTime    @default(now())
+
+  pools Pool[]
+
+  @@map("teslas")
+}
+
+model Pool {
+  id               String     @id @default(uuid())
+  teslaId          String
+  tesla            Tesla      @relation(fields: [teslaId], references: [id], onDelete: Cascade)
+  status           RideStatus @default(REQUESTED)
+  pickupZone       String
+  corridor         String
+  totalSeatsBooked Int        @default(0)
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime   @default(now())
+
+  rideRequests RideRequest[]
+  payments     Payment[]
+
+  @@index([teslaId])
+  @@index([status])
+  @@map("pools")
+}
+
+model RideRequest {
+  id          String  @id @default(uuid())
+  passengerId String
+  passenger   User    @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  poolId      String?
+  pool        Pool?   @relation(fields: [poolId], references: [id], onDelete: SetNull)
+
+  pickupZone      String
+  destinationZone String
+  seatsRequested  Int        @default(1)
+  farePoysha      Int
+  status          RideStatus @default(REQUESTED)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([passengerId])
+  @@index([status])
+  @@map("ride_requests")
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  poolId      String
+  pool        Pool          @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  passengerId String
+  passenger   User          @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  method      PaymentMethod
+  amountPaisa Int
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+  @@unique([poolId, passengerId])
+  @@map("payments")
+}

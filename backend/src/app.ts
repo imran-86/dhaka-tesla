@@ -5,6 +5,8 @@ import type { Request, Response } from 'express';
 
 
 import { env } from './config/env.js';
+import authRouter from './modules/auth/auth.route.js';
+
 
 
 
@@ -26,7 +28,7 @@ app.get("/", (req : Request, res : Response) => {
 });
   
 
-//   app.use('/api', router);
+app.use('/api/auth', authRouter);
 
  
 

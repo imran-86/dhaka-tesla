@@ -51,7 +51,11 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-
+  User: 'User',
+  Tesla: 'Tesla',
+  Pool: 'Pool',
+  RideRequest: 'RideRequest',
+  Payment: 'Payment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -68,4 +72,97 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  phone: 'phone',
+  createdAt: 'createdAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const TeslaScalarFieldEnum = {
+  id: 'id',
+  driverId: 'driverId',
+  name: 'name',
+  capacity: 'capacity',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type TeslaScalarFieldEnum = (typeof TeslaScalarFieldEnum)[keyof typeof TeslaScalarFieldEnum]
+
+
+export const PoolScalarFieldEnum = {
+  id: 'id',
+  teslaId: 'teslaId',
+  status: 'status',
+  pickupZone: 'pickupZone',
+  corridor: 'corridor',
+  totalSeatsBooked: 'totalSeatsBooked',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PoolScalarFieldEnum = (typeof PoolScalarFieldEnum)[keyof typeof PoolScalarFieldEnum]
+
+
+export const RideRequestScalarFieldEnum = {
+  id: 'id',
+  passengerId: 'passengerId',
+  poolId: 'poolId',
+  pickupZone: 'pickupZone',
+  destinationZone: 'destinationZone',
+  seatsRequested: 'seatsRequested',
+  farePoysha: 'farePoysha',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RideRequestScalarFieldEnum = (typeof RideRequestScalarFieldEnum)[keyof typeof RideRequestScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  poolId: 'poolId',
+  passengerId: 'passengerId',
+  method: 'method',
+  amountPaisa: 'amountPaisa',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+} as const
+
+export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

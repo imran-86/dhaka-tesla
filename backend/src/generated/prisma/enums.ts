@@ -9,7 +9,45 @@
 * 🟢 You can import this file directly.
 */
 
+export const Role = {
+  PASSENGER: 'PASSENGER',
+  DRIVER: 'DRIVER'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const TeslaStatus = {
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE'
+} as const
+
+export type TeslaStatus = (typeof TeslaStatus)[keyof typeof TeslaStatus]
+
+
+export const RideStatus = {
+  REQUESTED: 'REQUESTED',
+  MATCHED: 'MATCHED',
+  DRIVER_ARRIVED: 'DRIVER_ARRIVED',
+  STARTED: 'STARTED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type RideStatus = (typeof RideStatus)[keyof typeof RideStatus]
+
+
+export const PaymentMethod = {
+  CASH: 'CASH',
+  TESLAPAY: 'TESLAPAY'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]

@@ -7,6 +7,7 @@ import type { Request, Response } from 'express';
 import { env } from './config/env.js';
 import authRouter from './modules/auth/auth.route.js';
 import { rideRouter } from './modules/rides/ride.route.js';
+import driverRouter from './modules/driver/driver.route.js';
 
 
 
@@ -31,6 +32,7 @@ app.get("/", (req : Request, res : Response) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/rides', rideRouter);
+app.use('/api/driver', driverRouter);
 
  
 

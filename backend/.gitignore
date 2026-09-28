@@ -1,0 +1,36 @@
+# AI Tool Folders
+.claude/
+.cursor/
+.devin/
+.agent/
+.windsurf/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment Variables (Strictly never commit real secrets)
+.env
+.env.local
+.env.production
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db.agents/
+.claude/
+.cursor/
+.devin/
+.agent/
+.windsurf/

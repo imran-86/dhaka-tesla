@@ -8,4 +8,9 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/User'
+export type * from './models/Tesla'
+export type * from './models/Pool'
+export type * from './models/RideRequest'
+export type * from './models/Payment'
 export type * from './commonInputTypes'

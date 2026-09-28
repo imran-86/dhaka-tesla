@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs';
-import { Role, RideStatus, TeslaStatus } from '../src/generated/prisma/client.js';
+import { Role, TeslaStatus } from '../src/generated/prisma/client.js';
 import { prisma } from '../src/lib/prisma.js';
 
 async function main() {
   console.log('🌱 Clearing existing database records...');
 
+  // reverse dependency order
   await prisma.payment.deleteMany();
   await prisma.rideRequest.deleteMany();
   await prisma.pool.deleteMany();
@@ -63,41 +64,13 @@ async function main() {
     }),
   ]);
 
-  console.log('📝 Seeding ride requests (Banani → Mohakhali / Gulshan 1 / Farmgate)...');
-  // Fare in poysha (integer). See README fare model.
-  // baseFare 5000 + distanceCharge 4000 - poolDiscount 0 (not yet pooled)
-  await prisma.rideRequest.createMany({
-    data: [
-      {
-        passengerId: nusrat.id,
-        pickupZone: 'Banani',
-        destinationZone: 'Mohakhali',
-        seatsRequested: 1,
-        farePoysha: 9000,
-        status: RideStatus.REQUESTED,
-      },
-      {
-        passengerId: rafiq.id,
-        pickupZone: 'Banani',
-        destinationZone: 'Gulshan 1',
-        seatsRequested: 1,
-        farePoysha: 9000,
-        status: RideStatus.REQUESTED,
-      },
-      {
-        passengerId: shirin.id,
-        pickupZone: 'Banani',
-        destinationZone: 'Farmgate',
-        seatsRequested: 1,
-        farePoysha: 11000,
-        status: RideStatus.REQUESTED,
-      },
-    ],
-  });
-
   console.log('✅ Seeding complete.');
   console.log({
-    driver: { name: jashim.name, tesla: jashim.tesla?.name, capacity: jashim.tesla?.capacity },
+    driver: {
+      name: jashim.name,
+      tesla: jashim.tesla?.name,
+      capacity: jashim.tesla?.capacity,
+    },
     passengers: [nusrat.name, rafiq.name, shirin.name],
     demoPassword: 'Tesla@123',
   });

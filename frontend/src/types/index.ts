@@ -64,3 +64,12 @@ export interface ApiError {
   message: string;
   details?: unknown;
 }
+/** Response of POST /api/rides/estimate — preview only, not persisted. */
+export interface FareEstimate {
+  distanceKm: number;
+  seatsRequested: number;
+  soloFarePoysha: number;
+  pooledFarePoysha: number;
+  savingsPoysha: number;
+  discountPercent: number;
+}

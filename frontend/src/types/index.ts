@@ -2,6 +2,8 @@
 export type Role = 'PASSENGER' | 'DRIVER';
 
 export type TeslaStatus = 'ONLINE' | 'OFFLINE';
+export type PaymentMethod = 'CASH' | 'TESLAPAY';
+export type PaymentStatusType = 'PENDING' | 'COMPLETED';
 
 export type RideStatus =
   | 'REQUESTED'
@@ -127,4 +129,29 @@ export interface DriverPool {
     farePoysha: number;
     status: RideStatus;
   }>;
+}
+export interface Payment {
+  id: string;
+  poolId: string;
+  passengerId: string;
+  method: PaymentMethod;
+  amountPaisa: number;
+  status: PaymentStatusType;
+  createdAt: string;
+}
+
+/** Completed ride with no payment yet — drives the "Pay now" card. */
+export interface PendingPaymentRide {
+  id: string;
+  poolId: string;
+  pickupZone: string;
+  destinationZone: string;
+  seatsRequested: number;
+  farePoysha: number;
+  status: RideStatus;
+  createdAt: string;
+  pool: {
+    id: string;
+    tesla: { name: string };
+  };
 }

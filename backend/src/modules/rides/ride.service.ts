@@ -16,6 +16,28 @@ import { ACTIVE_RIDE_STATUSES, assertTransition } from './ride.stat.js';
  *   3. farePoysha stored is the TOTAL (per-seat fare × seatsRequested).
  */
 export async function createRide(passengerId: string, input: CreateRideInput) {
+    const unpaidRide = await prisma.rideRequest.findFirst({
+    where: {
+      passengerId,
+      status: RideStatus.COMPLETED,
+      poolId: { not: null },
+      pool: {
+        status: RideStatus.COMPLETED,
+        payments: {
+          none: { passengerId, status: 'COMPLETED' },
+        },
+      },
+    },
+    select: { id: true },
+  });
+
+  if (unpaidRide) {
+    throw new AppError(
+      403,
+      'PAYMENT_DUE',
+      'You have an unpaid completed trip. Please pay before requesting a new ride.',
+    );
+  }
   // Rule 1: active-request guard
   const existing = await prisma.rideRequest.findFirst({
     where: { passengerId, status: { in: ACTIVE_RIDE_STATUSES } },

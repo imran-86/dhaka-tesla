@@ -5,6 +5,7 @@ import { validate } from '../../middlewares/validate.js';
 import * as rideController from './ride.controller.js';
 import {
   createRideSchema,
+  estimateRideSchema,
   listRidesQuerySchema,
   rideIdParamSchema,
 } from './ride.schema.js';
@@ -17,6 +18,13 @@ rideRouter.post(
   auth(Role.PASSENGER),
   validate(createRideSchema, 'body'),
   rideController.createRide,
+);
+// POST /api/rides/estimate — passenger-only, no DB writes
+rideRouter.post(
+  '/estimate',
+  auth(Role.PASSENGER),
+  validate(estimateRideSchema, 'body'),
+  rideController.estimateRide,
 );
 
 // GET /api/rides/me — passenger only. NOTE: must be declared before /:id

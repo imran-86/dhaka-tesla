@@ -73,3 +73,13 @@ export interface FareEstimate {
   savingsPoysha: number;
   discountPercent: number;
 }
+/** Response of GET /api/tesla/status */
+export interface TeslaStatusInfo {
+  id: string;
+  name: string;
+  capacity: number;
+  status: TeslaStatus;
+  occupiedSeats: number;
+  availableSeats: number;
+  driver: { id: string; name: string };
+}

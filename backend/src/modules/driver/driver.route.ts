@@ -49,4 +49,5 @@ driverRouter.post(
   validate(poolIdParamSchema, 'params'),
   driverController.cancelPool,
 );
+driverRouter.get('/stats', driverController.getStats);
 export default driverRouter;

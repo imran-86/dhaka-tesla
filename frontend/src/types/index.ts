@@ -155,3 +155,9 @@ export interface PendingPaymentRide {
     tesla: { name: string };
   };
 }
+/** Response of GET /api/driver/stats */
+export interface DriverStats {
+  completedTrips: number;
+  totalRevenuePoysha: number;
+  totalPassengers: number;
+}

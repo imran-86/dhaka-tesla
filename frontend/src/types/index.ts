@@ -1,0 +1,66 @@
+
+export type Role = 'PASSENGER' | 'DRIVER';
+
+export type TeslaStatus = 'ONLINE' | 'OFFLINE';
+
+export type RideStatus =
+  | 'REQUESTED'
+  | 'MATCHED'
+  | 'DRIVER_ARRIVED'
+  | 'STARTED'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export interface Tesla {
+  id: string;
+  name: string;
+  capacity: number;
+  status: TeslaStatus;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: Role;
+  createdAt: string;
+  tesla?: Tesla | null;
+}
+
+export interface RideRequest {
+  id: string;
+  passengerId: string;
+  poolId: string | null;
+  pickupZone: string;
+  destinationZone: string;
+  seatsRequested: number;
+  farePoysha: number;
+  status: RideStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Pool {
+  id: string;
+  teslaId: string;
+  status: RideStatus;
+  pickupZone: string;
+  corridor: string;
+  totalSeatsBooked: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  tesla?: Pick<Tesla, 'id' | 'name' | 'capacity'>;
+  rideRequests?: RideRequest[];
+}
+
+/**
+ * Error shape returned by the backend for any non-2xx response.
+ * See backend/src/middlewares/error.ts
+ */
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: unknown;
+}

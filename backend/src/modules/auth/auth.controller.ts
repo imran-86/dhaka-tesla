@@ -11,7 +11,7 @@ export const signupPassenger = catchAsync(async (req: Request, res: Response) =>
   res
     .cookie(AUTH_COOKIE_NAME, result.accessToken, AUTH_COOKIE_OPTIONS)
     .status(201)
-    .json({ data: { user: result.user } });
+    .json({ data: { user: result.user,accessToken: result.accessToken  } });
 });
 
 export const signupDriver = catchAsync(async (req: Request, res: Response) => {
@@ -20,7 +20,7 @@ export const signupDriver = catchAsync(async (req: Request, res: Response) => {
   res
     .cookie(AUTH_COOKIE_NAME, result.accessToken, AUTH_COOKIE_OPTIONS)
     .status(201)
-    .json({ data: { user: result.user } });
+    .json({ data: { user: result.user,accessToken: result.accessToken  } });
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
@@ -29,7 +29,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   res
     .cookie(AUTH_COOKIE_NAME, result.accessToken, AUTH_COOKIE_OPTIONS)
     .status(200)
-    .json({ data: { user: result.user } });
+    .json({ data: { user: result.user,accessToken: result.accessToken  } });
 });
 
 export const logout = catchAsync(async (_req: Request, res: Response) => {

@@ -33,7 +33,7 @@ COPY --from=build /app/prisma7.config.ts ./prisma7.config.ts
 COPY --from=build /app/package.json ./package.json
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 4000
 ENTRYPOINT ["docker-entrypoint.sh"]

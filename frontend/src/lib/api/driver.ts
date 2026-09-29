@@ -1,6 +1,6 @@
 import 'server-only';
 import { serverFetch } from './server';
-import type { DriverPool, DriverTeslaStatus, PendingRideRequest } from '@/types';
+import type { DriverPool, DriverStats, DriverTeslaStatus, PendingRideRequest } from '@/types';
 
 export const driverApi = {
   getStatus: async () => {
@@ -9,6 +9,12 @@ export const driverApi = {
     );
     return tesla;
   },
+  getStats: async () => {
+  const { stats } = await serverFetch<{ stats: DriverStats }>(
+    '/api/driver/stats',
+  );
+  return stats;
+},
 
   listPendingRequests: async () => {
     const { requests } = await serverFetch<{ requests: PendingRideRequest[] }>(

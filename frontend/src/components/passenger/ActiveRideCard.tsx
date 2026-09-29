@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 import { formatDateTime, formatPoysha } from '@/lib/format';
 import { RideStatusBadge } from './RideStatusBadge';
 import { CancelRideButton } from './CancelRideButton';

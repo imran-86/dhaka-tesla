@@ -167,3 +167,11 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(AUTH_COOKIE);
   redirect('/');
 }
+export async function signupAction(
+  prev: SignupState,
+  formData: FormData,
+): Promise<SignupState> {
+  const role = String(formData.get('role') ?? 'PASSENGER').toUpperCase();
+  if (role === 'DRIVER') return signupDriverAction(prev, formData);
+  return signupPassengerAction(prev, formData);
+}

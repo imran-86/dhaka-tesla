@@ -1,24 +1,28 @@
+import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { ridesApi } from '@/lib/api/rides';
 import { teslaApi } from '@/lib/api/tesla';
+import { ActiveRideCard } from '@/components/passenger/ActiveRideCard';
 import { RecentRidesList } from '@/components/passenger/RecentRidesList';
+import { RideRequestForm } from '@/components/passenger/RideRequestForm';
 import { TeslaAvailabilityCard } from '@/components/passenger/TeslaAvailabilityCard';
-import { redirect } from 'next/navigation';
 
 export default async function PassengerDashboard() {
   const user = await getCurrentUser();
   if (!user || user.role !== 'PASSENGER') redirect('/');
 
-  // Fetch in parallel.
-  const [tesla, recentRides] = await Promise.all([
+  const [tesla, allRides] = await Promise.all([
     teslaApi.getStatus().catch(() => null),
-    ridesApi.listMine().then((r) => r.slice(0, 2)),
+    ridesApi.listMine().catch(() => []),
   ]);
 
-  // Find active ride (REQUESTED or MATCHED).
-  const activeRide = recentRides.find(
+  const activeRide = allRides.find(
     (r) => r.status === 'REQUESTED' || r.status === 'MATCHED',
   );
+
+  const recentRides = allRides
+    .filter((r) => r.id !== activeRide?.id)
+    .slice(0, 2);
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-10 space-y-6">
@@ -31,12 +35,13 @@ export default async function PassengerDashboard() {
 
       <TeslaAvailabilityCard tesla={tesla} />
 
-      {/* Placeholder for Section 5D — ride request form or active ride card */}
-      <div className="rounded-lg border border-dashed border-gray-300 bg-white/60 p-5 text-sm text-gray-500">
-        {activeRide
-          ? `You have an active ride (${activeRide.status}). Details coming in Section 5D.`
-          : 'Ride request form coming in Section 5D.'}
-      </div>
+      {activeRide ? (
+        <ActiveRideCard ride={activeRide} />
+      ) : (
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <RideRequestForm />
+        </div>
+      )}
 
       <RecentRidesList rides={recentRides} />
     </div>

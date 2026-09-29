@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import type { CreateRideInput, ListRidesQuery } from './ride.schema.js';
+import type { CreateRideInput, EstimateRideInput, ListRidesQuery } from './ride.schema.js';
 import * as rideService from './ride.service.js';
 import { catchAsync } from '../../common/utils/catchAsync.js';
 
@@ -29,4 +29,9 @@ export const cancelRide = catchAsync(async (req: Request, res: Response) => {
   const params = req.validated!.params as { id: string };
   const ride = await rideService.cancelRide(user.id, params.id);
   res.status(200).json({ data: { ride } });
+});
+export const estimateRide = catchAsync(async (req: Request, res: Response) => {
+  const input = req.validated!.body as EstimateRideInput;
+  const estimate = await rideService.estimateFare(input);
+  res.status(200).json({ data: { estimate } });
 });

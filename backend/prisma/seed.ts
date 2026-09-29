@@ -1,11 +1,23 @@
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
-import { Role, TeslaStatus } from '../src/generated/prisma/client.js';
-import { prisma } from '../src/lib/prisma.js';
+import {
+  PrismaClient,
+  Role,
+  TeslaStatus,
+} from '../src/generated/prisma/client.js';
+
+// Seed runs standalone (via `prisma7 db seed`), so it builds its own
+// PrismaClient with the driver adapter instead of importing the shared
+// client from src/lib — which is not shipped in the production image.
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🌱 Clearing existing database records...');
 
-  // reverse dependency order
   await prisma.payment.deleteMany();
   await prisma.rideRequest.deleteMany();
   await prisma.pool.deleteMany();

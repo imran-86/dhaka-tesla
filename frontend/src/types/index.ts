@@ -83,3 +83,48 @@ export interface TeslaStatusInfo {
   availableSeats: number;
   driver: { id: string; name: string };
 }
+/** Response of GET /api/driver/status and PATCH /api/driver/status */
+export interface DriverTeslaStatus {
+  id: string;
+  name: string;
+  capacity: number;
+  status: TeslaStatus;
+}
+
+/** A pending ride request as seen by the driver. */
+export interface PendingRideRequest {
+  id: string;
+  passengerId: string;
+  pickupZone: string;
+  destinationZone: string;
+  seatsRequested: number;
+  farePoysha: number;
+  status: RideStatus;
+  createdAt: string;
+}
+
+/**
+ * A pool as returned by the driver endpoints.
+ * Includes the Tesla summary and the attached ride requests.
+ */
+export interface DriverPool {
+  id: string;
+  teslaId: string;
+  status: RideStatus;
+  pickupZone: string;
+  corridor: string;
+  totalSeatsBooked: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  tesla: { id: string; name: string; capacity: number };
+  rideRequests: Array<{
+    id: string;
+    passengerId: string;
+    pickupZone: string;
+    destinationZone: string;
+    seatsRequested: number;
+    farePoysha: number;
+    status: RideStatus;
+  }>;
+}

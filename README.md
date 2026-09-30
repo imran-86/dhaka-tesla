@@ -41,13 +41,13 @@ Built for the **RoBenDevs Internship Challenge**. Uses the story cast from the b
 
 ## 1. Summary
 
-<!-- TODO: Write 2–3 sentences. Suggested draft below, keep or refine. -->
+
 
 **Dhaka Tesla Pool** is a ride-pooling MVP where multiple passengers can share a single battery-powered three-seater ("Tesla" in the brief) called **Bullet**, driven by **Jashim**. Passengers request a ride between named Dhaka zones, a driver accepts requests into a **pool**, fares are recalculated per passenger once a pool forms, and every actor sees only what they are allowed to see. The focus is on clean domain modelling, correct state transitions, and provable concurrency safety around the last-seat race — not on real map routing.
 
 ## 2. The problem
 
-<!-- TODO: 1 paragraph, English. Draft: -->
+
 
 Every morning in Dhaka, people heading in nearly the same direction take separate rides because there is no easy way to share. The brief describes Nusrat (Banani → Mohakhali) and Rafiq (Banani → Gulshan 1) booking nearly identical routes within seconds of each other, and Jashim — with three seats on his Bullet — having no way to combine their trips, split the fare fairly, or track who is riding when.
 
@@ -61,19 +61,13 @@ The MVP solves this by:
 
 ## 3. Demo video
 
-<!-- TODO: Record a ≤6-minute video (Loom or similar free tool) following Section 13 of the brief.
-     Structure:
-       0:00–1:00 — your understanding of the problem, users, core idea (don't recite the PRD)
-       1:00–3:00 — engineering: architecture, backend, frontend, DB, lifecycle, one key decision, one trade-off
-       3:00–6:00 — product tour: passenger flow, driver flow, pooling, fare/status, edge case, deployment
-     Paste the link below. -->
+
 
 📹 **Demo video:** _TODO — paste link here_
 
 ## 4. Live deployment
 
-<!-- TODO: If you deploy to a free tier (Vercel + Railway/Render/Fly), paste URLs here.
-     If free hosting is not available for the backend, state that and point to the Docker setup as a reproducible alternative. -->
+
 
 - **Frontend:** https://dhaka-tesla-nine.vercel.app/
 - **Backend:** https://dhaka-tesla-api-feol.onrender.com/
@@ -128,18 +122,23 @@ All demo accounts share the password **`Tesla@123`**.
 
 ## 7. Screenshots
 
-<!-- TODO: Add screenshots. Recommended list:
-     - Landing page (login)
-     - Signup with driver toggle
-     - Passenger dashboard — Tesla card + ride request form with fare preview
-     - Active ride — MATCHED state showing pooled fare
-     - Payment page (Cash / TeslaPay)
-     - Payment success banner
-     - Driver dashboard — online with pending list
-     - Driver dashboard — active pool card
-     - Driver history — stats row
-     - Passenger history with "Paid" / "Payment due" badges
--->
+### Auth
+![Landing page](docs/screenshots/01-landing.png)
+![Signup](docs/screenshots/02-signup.png)
+
+### Passenger
+![Live fare preview](docs/screenshots/04-fare-preview.png)
+
+
+### Driver
+![Driver online with pending requests](docs/screenshots/06-driver-pending.png)
+
+### Payment
+![Payment page](docs/screenshots/08-payment-page.png)
+![Payment request](docs/screenshots/03-payment-request)
+
+### History
+![Driver history with stats](docs/screenshots/10-driver-history.png)
 
 ## 8. Architecture
 

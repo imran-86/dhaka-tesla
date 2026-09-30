@@ -141,3 +141,40 @@ All demo accounts share the password **`Tesla@123`**.
 ## 8. Architecture
 
 ![System architecture](docs/architecture.png.png)
+
+## 9. Database (ERD)
+
+![ERD](docs/erd.png)
+
+**Reading the diagram:** five tables, one relation chain from `User` through `Tesla` and `Pool` to `RideRequest` and `Payment`.
+
+**Table-by-table:**
+
+| Table | Purpose | Key constraint |
+|---|---|---|
+| `users` | Passengers and drivers | `email` unique; `role` decides what the user can do |
+| `teslas` | One Tesla per driver | `driverId` unique — a driver cannot own two Teslas |
+| `pools` | A shared ride bound to one Tesla | Indexed on `teslaId` and `status` for fast active-pool lookups |
+| `ride_requests` | A passenger's request | `poolId` is **nullable** — a request exists before it is matched |
+| `payments` | Settlement per passenger per pool | Unique `(poolId, passengerId)` — one payment per passenger per trip |
+
+**Money is always an integer.** Every monetary field (`farePoysha`, `amountPaisa`) is stored in the smallest unit — paisa / poysha (1/100 BDT). Floating-point money is a class of bug we chose to remove entirely.
+
+
+## 10. Lifecycles & concurrency
+### Pool lifecycle
+
+![Pool lifecycle](docs/lifecycles.png)
+The pool lifecycle is **separate** from the ride lifecycle. `DRIVER_ARRIVED` and `STARTED` are pool-level events — a passenger does not "start" alone when sharing a Tesla.
+
+### The last-seat race
+
+![Last-seat race](docs/concurrency.png)
+
+Two passengers may try to claim the final seat at the same instant. A naive read-check-write flow allows both to succeed and overbooks the vehicle. We prevent this with a **row-level lock** on the Tesla inside a single transaction.
+
+
+**Guarantee:** `SUM(active seats on this Tesla) ≤ Tesla.capacity`, always.
+
+**Proven by:** `tests/concurrency/seat-race.test.ts` fires two accepts with `Promise.allSettled` and asserts exactly one succeeds with `POOL_CAPACITY_EXCEEDED` on the other, then verifies the aggregate seat count never exceeds capacity.
+

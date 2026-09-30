@@ -169,7 +169,7 @@ The pool lifecycle is **separate** from the ride lifecycle. `DRIVER_ARRIVED` and
 
 ### The last-seat race
 
-![Last-seat race](docs/concurrency.png)
+![Last-seat race](docs/concurrency.png.png)
 
 Two passengers may try to claim the final seat at the same instant. A naive read-check-write flow allows both to succeed and overbooks the vehicle. We prevent this with a **row-level lock** on the Tesla inside a single transaction.
 

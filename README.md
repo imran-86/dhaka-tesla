@@ -63,7 +63,7 @@ The MVP solves this by:
 
 
 
-📹 **Demo video:** _TODO — paste link here_
+📹 **Demo video:** [Dhaka Tesla Pool — 6-minute walkthrough](https://drive.google.com/file/d/14yq2hI0U6XQFoOZllSGiwXfb10pdIZpW/preview)
 
 ## 4. Live deployment
 

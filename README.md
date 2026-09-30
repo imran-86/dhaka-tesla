@@ -140,4 +140,4 @@ All demo accounts share the password **`Tesla@123`**.
 
 ## 8. Architecture
 
-![System architecture](docs/architecture.png)
+![System architecture](docs/architecture.png.png)

@@ -32,7 +32,6 @@ export function errorHandler(
     });
   }
 
-  // Unexpected error — log it, but never leak the stack to the client.
   // eslint-disable-next-line no-console
   console.error('[UNHANDLED ERROR]', err);
 

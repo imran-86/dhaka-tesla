@@ -1,10 +1,10 @@
 import { FareService } from '../../common/services/fair.services.js';
 import { AppError } from '../../common/utils/AppError.js';
-import type { DhakaZone } from '../../common/utils/zones.constants.js';
+import { FARE_CONFIG, type DhakaZone } from '../../common/utils/zones.constants.js';
 import { Role, RideStatus } from '../../generated/prisma/enums.js';
 import { prisma } from '../../lib/prisma.js';
 
-import type { CreateRideInput, ListRidesQuery } from './ride.schema.js';
+import type { CreateRideInput, EstimateRideInput, ListRidesQuery } from './ride.schema.js';
 import { ACTIVE_RIDE_STATUSES, assertTransition } from './ride.stat.js';
 
 /**
@@ -16,6 +16,28 @@ import { ACTIVE_RIDE_STATUSES, assertTransition } from './ride.stat.js';
  *   3. farePoysha stored is the TOTAL (per-seat fare × seatsRequested).
  */
 export async function createRide(passengerId: string, input: CreateRideInput) {
+    const unpaidRide = await prisma.rideRequest.findFirst({
+    where: {
+      passengerId,
+      status: RideStatus.COMPLETED,
+      poolId: { not: null },
+      pool: {
+        status: RideStatus.COMPLETED,
+        payments: {
+          none: { passengerId, status: 'COMPLETED' },
+        },
+      },
+    },
+    select: { id: true },
+  });
+
+  if (unpaidRide) {
+    throw new AppError(
+      403,
+      'PAYMENT_DUE',
+      'You have an unpaid completed trip. Please pay before requesting a new ride.',
+    );
+  }
   // Rule 1: active-request guard
   const existing = await prisma.rideRequest.findFirst({
     where: { passengerId, status: { in: ACTIVE_RIDE_STATUSES } },
@@ -139,4 +161,37 @@ export async function cancelRide(passengerId: string, rideId: string) {
   // transaction. This hook will live here.
 
   return updated;
+}
+/**
+ * Compute solo and pooled fare estimates for a trip.
+ *
+ * No database writes — safe to call on every keystroke from the frontend.
+ * The discount is calculated assuming the pool would have 2 passengers
+ * (which is MIN_POOL_PASSENGERS). If the real pool ends up larger, the
+ * actual discount will be the same 20% rate — the count is only used to
+ * decide *whether* the discount applies.
+ */
+export async function estimateFare(input: EstimateRideInput) {
+  const solo = FareService.calculateFare(
+    input.pickupZone as DhakaZone,
+    input.destinationZone as DhakaZone,
+    1,
+  );
+  const pooled = FareService.calculateFare(
+    input.pickupZone as DhakaZone,
+    input.destinationZone as DhakaZone,
+    FARE_CONFIG.MIN_POOL_PASSENGERS,
+  );
+
+  const soloFarePoysha = solo.totalPoysha * input.seatsRequested;
+  const pooledFarePoysha = pooled.totalPoysha * input.seatsRequested;
+
+  return {
+    distanceKm: solo.distanceKm,
+    seatsRequested: input.seatsRequested,
+    soloFarePoysha,
+    pooledFarePoysha,
+    savingsPoysha: soloFarePoysha - pooledFarePoysha,
+    discountPercent: FARE_CONFIG.POOL_DISCOUNT_PERCENTAGE,
+  };
 }

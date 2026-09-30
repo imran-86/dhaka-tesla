@@ -56,3 +56,8 @@ export const cancelPool = catchAsync(async (req: Request, res: Response) => {
   const pool = await driverService.cancelPool(user.id, id);
   res.status(200).json({ data: { pool } });
 });
+export const getStats = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user!;
+  const stats = await driverService.getDriverStats(user.id);
+  res.status(200).json({ data: { stats } });
+});

@@ -383,3 +383,43 @@ export async function cancelPool(driverId: string, poolId: string) {
     return updated;
   });
 }
+export async function getDriverStats(driverId: string) {
+  const tesla = await prisma.tesla.findUnique({
+    where: { driverId },
+    select: { id: true },
+  });
+
+  if (!tesla) {
+    throw new AppError(404, 'TESLA_NOT_FOUND', 'No Tesla is registered for this driver.');
+  }
+
+  const completedPools = await prisma.pool.findMany({
+    where: {
+      teslaId: tesla.id,
+      status: RideStatus.COMPLETED,
+    },
+    select: {
+      id: true,
+      rideRequests: {
+        where: { status: { not: RideStatus.CANCELLED } },
+        select: { farePoysha: true, passengerId: true },
+      },
+    },
+  });
+
+  let totalRevenuePoysha = 0;
+  const allPassengers = new Set<string>();
+
+  for (const pool of completedPools) {
+    for (const ride of pool.rideRequests) {
+      totalRevenuePoysha += ride.farePoysha;
+      allPassengers.add(ride.passengerId);
+    }
+  }
+
+  return {
+    completedTrips: completedPools.length,
+    totalRevenuePoysha,
+    totalPassengers: allPassengers.size,
+  };
+}

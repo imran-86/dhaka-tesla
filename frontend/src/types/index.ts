@@ -2,6 +2,8 @@
 export type Role = 'PASSENGER' | 'DRIVER';
 
 export type TeslaStatus = 'ONLINE' | 'OFFLINE';
+export type PaymentMethod = 'CASH' | 'TESLAPAY';
+export type PaymentStatusType = 'PENDING' | 'COMPLETED';
 
 export type RideStatus =
   | 'REQUESTED'
@@ -63,4 +65,99 @@ export interface ApiError {
   code: string;
   message: string;
   details?: unknown;
+}
+/** Response of POST /api/rides/estimate — preview only, not persisted. */
+export interface FareEstimate {
+  distanceKm: number;
+  seatsRequested: number;
+  soloFarePoysha: number;
+  pooledFarePoysha: number;
+  savingsPoysha: number;
+  discountPercent: number;
+}
+/** Response of GET /api/tesla/status */
+export interface TeslaStatusInfo {
+  id: string;
+  name: string;
+  capacity: number;
+  status: TeslaStatus;
+  occupiedSeats: number;
+  availableSeats: number;
+  driver: { id: string; name: string };
+}
+/** Response of GET /api/driver/status and PATCH /api/driver/status */
+export interface DriverTeslaStatus {
+  id: string;
+  name: string;
+  capacity: number;
+  status: TeslaStatus;
+}
+
+/** A pending ride request as seen by the driver. */
+export interface PendingRideRequest {
+  id: string;
+  passengerId: string;
+  pickupZone: string;
+  destinationZone: string;
+  seatsRequested: number;
+  farePoysha: number;
+  status: RideStatus;
+  createdAt: string;
+}
+
+/**
+ * A pool as returned by the driver endpoints.
+ * Includes the Tesla summary and the attached ride requests.
+ */
+export interface DriverPool {
+  id: string;
+  teslaId: string;
+  status: RideStatus;
+  pickupZone: string;
+  corridor: string;
+  totalSeatsBooked: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  tesla: { id: string; name: string; capacity: number };
+  rideRequests: Array<{
+    id: string;
+    passengerId: string;
+    pickupZone: string;
+    destinationZone: string;
+    seatsRequested: number;
+    farePoysha: number;
+    status: RideStatus;
+  }>;
+}
+export interface Payment {
+  id: string;
+  poolId: string;
+  passengerId: string;
+  method: PaymentMethod;
+  amountPaisa: number;
+  status: PaymentStatusType;
+  createdAt: string;
+}
+
+/** Completed ride with no payment yet — drives the "Pay now" card. */
+export interface PendingPaymentRide {
+  id: string;
+  poolId: string;
+  pickupZone: string;
+  destinationZone: string;
+  seatsRequested: number;
+  farePoysha: number;
+  status: RideStatus;
+  createdAt: string;
+  pool: {
+    id: string;
+    tesla: { name: string };
+  };
+}
+/** Response of GET /api/driver/stats */
+export interface DriverStats {
+  completedTrips: number;
+  totalRevenuePoysha: number;
+  totalPassengers: number;
 }

@@ -1,6 +1,6 @@
 import { FareService } from '../../common/services/fair.services.js';
 import { AppError } from '../../common/utils/AppError.js';
-import { FARE_CONFIG, type DhakaZone } from '../../common/utils/zones.constants.js';
+import { COMPATIBLE_CORRIDORS, FARE_CONFIG, type DhakaZone } from '../../common/utils/zones.constants.js';
 import { Role, RideStatus } from '../../generated/prisma/enums.js';
 import { prisma } from '../../lib/prisma.js';
 
@@ -193,5 +193,12 @@ export async function estimateFare(input: EstimateRideInput) {
     pooledFarePoysha,
     savingsPoysha: soloFarePoysha - pooledFarePoysha,
     discountPercent: FARE_CONFIG.POOL_DISCOUNT_PERCENTAGE,
+  };
+}
+
+export function listCorridors() {
+  return {
+    pickupZones: Object.keys(COMPATIBLE_CORRIDORS),
+    corridors: COMPATIBLE_CORRIDORS,
   };
 }

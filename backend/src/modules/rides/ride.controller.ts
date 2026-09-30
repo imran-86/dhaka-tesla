@@ -35,3 +35,7 @@ export const estimateRide = catchAsync(async (req: Request, res: Response) => {
   const estimate = await rideService.estimateFare(input);
   res.status(200).json({ data: { estimate } });
 });
+export const listCorridors = catchAsync(async (_req: Request, res: Response) => {
+  const corridors = rideService.listCorridors();
+  res.status(200).json({ data: { corridors } });
+});

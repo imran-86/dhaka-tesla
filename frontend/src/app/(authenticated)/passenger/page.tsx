@@ -19,10 +19,11 @@ export default async function PassengerDashboard({ searchParams }: Props) {
 
   const sp = await searchParams;
 
-  const [tesla, allRides, pendingPayments] = await Promise.all([
+  const [tesla, allRides, pendingPayments, corridors] = await Promise.all([
     teslaApi.getStatus().catch(() => null),
     ridesApi.listMine().catch(() => []),
     paymentsApi.listPendingRides().catch(() => []),
+    ridesApi.listCorridors().catch(() => ({ pickupZones: [], corridors: {} })),
   ]);
 
   const activeRide = allRides.find(
@@ -67,7 +68,7 @@ export default async function PassengerDashboard({ searchParams }: Props) {
         <CompletedRideCard ride={unpaidCompleted} />
       ) : (
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <RideRequestForm />
+          <RideRequestForm corridors={corridors} />
         </div>
       )}
 

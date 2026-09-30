@@ -1,6 +1,6 @@
 import 'server-only';
 import { serverFetch } from './server';
-import type { RideRequest, RideStatus } from '@/types';
+import type { CorridorMap, RideRequest, RideStatus } from '@/types';
 
 // ------------------------------------------------------------------
 // Read operations (used from Server Components)
@@ -54,4 +54,10 @@ export const ridesApi = {
     );
     return estimate;
   },
+  listCorridors: async (): Promise<CorridorMap> => {
+  const { corridors } = await serverFetch<{ corridors: CorridorMap }>(
+    '/api/rides/corridors',
+  );
+  return corridors;
+},
 };

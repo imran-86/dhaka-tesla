@@ -6,29 +6,44 @@ import type { CreateRideState } from '@/app/actions/rides';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { DHAKA_ZONES } from '@/lib/constants';
 import { formatPoysha } from '@/lib/format';
-import type { FareEstimate } from '@/types';
+import type { CorridorMap, FareEstimate } from '@/types';
 
 const selectClass =
   'block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900';
 
-export function RideRequestForm() {
+interface Props {
+  corridors: CorridorMap;
+}
+
+export function RideRequestForm({ corridors }: Props) {
   const [state, formAction, isPending] = useActionState<CreateRideState, FormData>(
     createRideAction,
     {},
   );
 
-  const [pickup, setPickup] = useState<string>('Banani');
-  const [destination, setDestination] = useState<string>('Mohakhali');
+  const pickupOptions = corridors.pickupZones;
+  const defaultPickup = pickupOptions[0] ?? '';
+  const defaultDestination = (corridors.corridors[defaultPickup] ?? [])[0] ?? '';
+
+  const [pickup, setPickup] = useState<string>(defaultPickup);
+  const [destination, setDestination] = useState<string>(defaultDestination);
   const [seats, setSeats] = useState<number>(1);
 
-  const [estimate, setEstimate] = useState<FareEstimate | null>(null);
-  const [estimateError, setEstimateError] = useState<string | null>(null);
-  const [isEstimating, startTransition] = useTransition();
+  const destinationOptions = corridors.corridors[pickup] ?? [];
 
-  // Live fare preview — debounced call to the server action.
-   // Derived: validation is computed during render, not stored in state.
+  // Pickup change also resets destination in the same event handler —
+  // no effect needed. If the current destination is still valid for the
+  // new pickup, keep it; otherwise jump to the first valid option.
+  const handlePickupChange = (nextPickup: string) => {
+    setPickup(nextPickup);
+    const options = corridors.corridors[nextPickup] ?? [];
+    if (!options.includes(destination)) {
+      setDestination(options[0] ?? '');
+    }
+  };
+
+  // Derived validation — no state needed.
   const validationError =
     !pickup || !destination
       ? 'Pickup and destination are required.'
@@ -36,12 +51,13 @@ export function RideRequestForm() {
         ? 'Pickup and destination must differ.'
         : null;
 
-  // Live fare preview — debounced call to the server action.
+  const [estimate, setEstimate] = useState<FareEstimate | null>(null);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
+  const [isEstimating, startTransition] = useTransition();
+
+  // Debounced fare estimate — async callback, so setState is safe here.
   useEffect(() => {
-    if (validationError) {
-      // No synchronous setState here — just skip.
-      return;
-    }
+    if (validationError) return;
 
     const handle = setTimeout(() => {
       startTransition(async () => {
@@ -81,10 +97,10 @@ export function RideRequestForm() {
         <select
           name="pickupZone"
           value={pickup}
-          onChange={(e) => setPickup(e.target.value)}
+          onChange={(e) => handlePickupChange(e.target.value)}
           className={`mt-1 ${selectClass}`}
         >
-          {DHAKA_ZONES.map((z) => (
+          {pickupOptions.map((z) => (
             <option key={z} value={z}>
               {z}
             </option>
@@ -101,13 +117,17 @@ export function RideRequestForm() {
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
           className={`mt-1 ${selectClass}`}
+          disabled={destinationOptions.length === 0}
         >
-          {DHAKA_ZONES.map((z) => (
+          {destinationOptions.map((z) => (
             <option key={z} value={z}>
               {z}
             </option>
           ))}
         </select>
+        <p className="mt-1 text-xs text-gray-500">
+          Only zones along a compatible corridor are shown.
+        </p>
       </div>
 
       <Input
@@ -120,13 +140,12 @@ export function RideRequestForm() {
         onChange={(e) => setSeats(Number(e.target.value) || 1)}
       />
 
-      {/* Live fare preview */}
       <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
           Fare preview
         </p>
 
-                {validationError ? (
+        {validationError ? (
           <p className="mt-2 text-sm text-red-700">{validationError}</p>
         ) : estimateError ? (
           <p className="mt-2 text-sm text-red-700">{estimateError}</p>

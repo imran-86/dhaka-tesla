@@ -53,7 +53,7 @@ Every morning in Dhaka, people heading in nearly the same direction take separat
 
 The MVP solves this by:
 
-- Modelling **zones** and a **corridor matching rule** so overlapping trips can be paired deterministically (no map APIs, no routing engine).
+- - Modelling **9 predefined Dhaka zones** with a directional **corridor matching rule** so overlapping trips can be paired deterministically. Four zones act as pickups (Banani, Mohakhali, Dhanmondi, Mirpur) and each connects to a curated set of destinations; the remaining five are destinations only. No map APIs, no routing engine — just a hand-checkable table.
 - Introducing a **Pool** that binds multiple RideRequests to one Tesla.
 - Ensuring **occupied seats never exceed capacity**, even under concurrent accepts.
 - Calculating an **individual fare** for every passenger, with a 20% discount that only applies when at least two distinct passengers actually share the Tesla.
@@ -529,6 +529,7 @@ Commit messages follow `<type>(<scope>): <short description>` with types `feat`,
 
 - **Multi-seat bookings do not unlock the pool discount.** A single passenger booking two seats on the same route is treated as one passenger. This is deliberate — the discount exists to reward sharing with a stranger.
 - **Passive tabs poll every 10 seconds.** An idle tab calls `router.refresh()` on an interval so ride, pool, and payment updates from other users appear without a manual refresh. The poll is skipped while the tab is hidden. This is a deliberate MVP choice — Server-Sent Events would be the correct upgrade path at scale, and would avoid the redundant polls each active tab makes today.
+- **Corridor-restricted destinations.** The ride request form only shows destinations that share a corridor with the selected pickup zone — the same rule the backend uses to decide whether two rides can pool. This is deliberate: showing an unpoolable route (e.g. Banani → Uttara) would let passengers request trips the driver can never combine with anyone else.
 
 ## 23. Next improvements
 

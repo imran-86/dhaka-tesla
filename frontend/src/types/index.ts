@@ -161,3 +161,8 @@ export interface DriverStats {
   totalRevenuePoysha: number;
   totalPassengers: number;
 }
+
+export interface CorridorMap {
+  pickupZones: string[];
+  corridors: Record<string, string[]>;
+}

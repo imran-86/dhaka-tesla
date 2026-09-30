@@ -12,14 +12,15 @@ import {
 
 export const rideRouter = Router();
 
-// POST /api/rides — passenger only
+// POST /api/rides — passenger creates a ride request
 rideRouter.post(
   '/',
   auth(Role.PASSENGER),
   validate(createRideSchema, 'body'),
   rideController.createRide,
 );
-// POST /api/rides/estimate — passenger-only, no DB writes
+
+// POST /api/rides/estimate — passenger-only fare preview (no DB writes)
 rideRouter.post(
   '/estimate',
   auth(Role.PASSENGER),
@@ -27,7 +28,11 @@ rideRouter.post(
   rideController.estimateRide,
 );
 
-// GET /api/rides/me — passenger only. NOTE: must be declared before /:id
+// GET /api/rides/corridors — PUBLIC corridor map (used by the request form).
+// No auth: this is static configuration, not user data.
+rideRouter.get('/corridors', rideController.listCorridors);
+
+// GET /api/rides/me — passenger lists own rides
 rideRouter.get(
   '/me',
   auth(Role.PASSENGER),
@@ -35,7 +40,7 @@ rideRouter.get(
   rideController.listMyRides,
 );
 
-// GET /api/rides/:id — any logged-in user; ownership enforced in service
+// GET /api/rides/:id — any authenticated user; ownership checked in service
 rideRouter.get(
   '/:id',
   auth(),
@@ -43,12 +48,10 @@ rideRouter.get(
   rideController.getRideById,
 );
 
-// POST /api/rides/:id/cancel — passenger only; ownership enforced in service
+// POST /api/rides/:id/cancel — owner passenger only
 rideRouter.post(
   '/:id/cancel',
   auth(Role.PASSENGER),
   validate(rideIdParamSchema, 'params'),
   rideController.cancelRide,
 );
-
-export default rideRouter;

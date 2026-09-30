@@ -5,9 +5,12 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
-    // Run tests sequentially. Concurrency tests must not fight each other
-    // for the same DB rows across files.
     fileParallelism: false,
     testTimeout: 15000,
+
+    // Windows-friendly pool: threads instead of forked processes.
+    // Forked workers intermittently crash with exit code 0xC0000409
+    // (stack buffer overrun) on Windows when running many Prisma calls.
+    pool: 'threads',
   },
 });

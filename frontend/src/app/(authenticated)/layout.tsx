@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { AutoRefresh } from '@/components/realtime/AutoRefresh';
 import { getCurrentUser } from '@/lib/auth';
 
 export default async function AuthenticatedLayout({
@@ -13,6 +14,7 @@ export default async function AuthenticatedLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <AutoRefresh />
       <Header user={user} />
       <main className="flex-1">{children}</main>
       <Footer />

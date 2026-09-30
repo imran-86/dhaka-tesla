@@ -100,6 +100,7 @@ All demo accounts share the password **`Tesla@123`**.
 - Payment page with two methods (Cash / simulated TeslaPay)
 - "Payment due" blocking — cannot request a new ride until the last trip is paid
 - Full ride history with payment status badges
+- **Live-ish updates** — other users' changes appear within 10 seconds without a manual refresh, and instantly after your own Server Actions
 
 **Driver**
 - Online / offline toggle
@@ -119,7 +120,7 @@ All demo accounts share the password **`Tesla@123`**.
 - Zod validation on every write endpoint
 - Migrations, seed, Docker Compose, health checks
 - 19 automated tests covering concurrency, auth isolation, state transitions, and fare logic
-
+- **Auto-refresh layout** — authenticated pages poll every 10 seconds while the tab is visible, using `router.refresh()` on top of Next.js's dynamic rendering
 ## 7. Screenshots
 
 ### Auth
@@ -527,6 +528,7 @@ Commit messages follow `<type>(<scope>): <short description>` with types `feat`,
 - **No rate limiting.** Explicitly deferred; simple to add via `express-rate-limit` on `/api/auth/*`.
 
 - **Multi-seat bookings do not unlock the pool discount.** A single passenger booking two seats on the same route is treated as one passenger. This is deliberate — the discount exists to reward sharing with a stranger.
+- **Passive tabs poll every 10 seconds.** An idle tab calls `router.refresh()` on an interval so ride, pool, and payment updates from other users appear without a manual refresh. The poll is skipped while the tab is hidden. This is a deliberate MVP choice — Server-Sent Events would be the correct upgrade path at scale, and would avoid the redundant polls each active tab makes today.
 
 ## 23. Next improvements
 
@@ -535,6 +537,7 @@ Commit messages follow `<type>(<scope>): <short description>` with types `feat`,
 - DB-level `CHECK` constraint enforcing `occupied + 1 <= capacity` as a last line of defence
 - OpenAPI spec generated from the existing Zod schemas
 - Structured JSON logging via `pino` (dependency already installed)
+- Replace 10-second polling with Server-Sent Events (or WebSockets) so passive tabs receive updates only when something changes, avoiding redundant fetches
 
 ## 24. Viral-scale reasoning (optional)
 
@@ -554,34 +557,35 @@ Commit messages follow `<type>(<scope>): <short description>` with types `feat`,
 
 ## 25. AI usage
 
-Per Section 8 of the brief, this section is required and honest.
+Per Section 8 of the brief, this section is honest and specific.
 
 **Tools used:**
 
-- **Claude (Anthropic)** — architecture discussions, code review, PRD interpretation, refactors
-- **ChatGPT** — drafting helper functions, quick syntax checks
-- **Deepseek** — get the real code with proper DeepThink
+- **Claude (Anthropic)** — architecture discussions, code review, PRD interpretation, refactoring suggestions
+- **ChatGPT** — quick syntax reference and library documentation lookup
+- **DeepSeek** — deep-dive code suggestions during backend implementation and debugging
 
-**What for:**
+**What each was used for:**
 
-- Scaffolding the initial Express + Prisma project
-- Drafting Zod schemas for request validation
-- Generating the Mermaid diagrams in this README and in `docs/`
-- Reviewing the concurrency design and confirming `FOR UPDATE` as the right primitive
-- Writing test skeletons for the fare and auth-isolation suites
+- Brainstorming the backend module structure (auth / rides / driver / tesla / payments)
+- Drafting Zod schemas for request validation and typing them alongside the API
+- Reviewing the concurrency design and confirming `SELECT ... FOR UPDATE` as the right primitive
+- Suggesting test scenarios for the auth isolation and state-transition suites
+- Reviewing Prisma 7 migration quirks and ESM + `tsx` setup issues
+- Drafting diagram layouts (the actual Mermaid/DBML syntax was typed manually)
 
 **One accepted suggestion:**
 
-- **Suggestion:** Wrap the Tesla row read in a `SELECT ... FOR UPDATE` inside the acceptance transaction.
-- **Why accepted:** It solves the last-seat race cleanly without introducing a queue or a distributed lock, and PostgreSQL's row-level locking is a native, well-documented feature.
+- **Suggestion:** Wrap the Tesla row read in `SELECT ... FOR UPDATE` inside the pool-acceptance transaction.
+- **Why accepted:** It solves the last-seat race without introducing a queue, an advisory lock, or a distributed coordinator. PostgreSQL's row-level locking is a native feature and the semantics are well-documented, which made it easy to defend in review and easy to test with `Promise.allSettled`.
 - **Where in code:** `backend/src/modules/driver/driver.service.ts`, `acceptRideRequests()`.
+- **Verification:** `tests/concurrency/seat-race.test.ts` fires two concurrent accepts and asserts exactly one succeeds with `POOL_CAPACITY_EXCEEDED` on the other, then verifies the aggregate seat count never exceeds capacity.
 
 **One rejected / changed suggestion:**
 
-- **Suggestion:** Integrate Stripe for the payment flow, with webhooks and idempotency keys.
-- **Why rejected:** The brief explicitly says "no real gateway needed — Cash or simulated TeslaPay." Stripe would add secrets, webhook infrastructure, and dead code for zero MVP value.
-- **What was done instead:** Simulated Cash / TeslaPay — a single `Payment` row written when the passenger confirms the method.
-
+- **Suggestion:** Push real-time ride/pool updates to the browser using Server-Sent Events (SSE) with an in-memory pub/sub per user.
+- **Why rejected:** Two reasons. First, every page read in this app runs through `cookies()`, which makes Next.js treat the route as dynamic and re-fetch on every request — so the acting user's own view already updates instantly after a Server Action. Second, the real value of SSE (pushing to another user's idle tab) is not required by the MVP, and adding it would mean an extra long-lived connection, a new endpoint, and a Redis pub/sub dependency for multi-instance safety. That is operational complexity without a matching product need at this stage.
+- **What was done instead:** Mutating Server Actions call `revalidatePath` to clear the client-side router cache so the acting user sees the change immediately. The SSE upgrade is documented in Known Limitations and Next Improvements as the correct path if passive-tab updates become a requirement.
 
 
 ## 26. Credits

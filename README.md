@@ -75,11 +75,14 @@ The MVP solves this by:
 <!-- TODO: If you deploy to a free tier (Vercel + Railway/Render/Fly), paste URLs here.
      If free hosting is not available for the backend, state that and point to the Docker setup as a reproducible alternative. -->
 
-- **Frontend:** _TODO_
-- **Backend:** _TODO_
-- **Database:** _TODO_
+- **Frontend:** https://dhaka-tesla-nine.vercel.app/
+- **Backend:** https://dhaka-tesla-api-feol.onrender.com/
+- **Database:** Neon Postgres (AWS ap-southeast-1, Singapore)
 
-If free hosting is not available, the Docker setup in [§17](#17-docker-setup) is a fully reproducible one-command deployment on any machine with Docker.
+Both services run on free tiers. The Render backend spins down after
+15 minutes of inactivity — the first request after idle takes
+30–60 seconds to wake it. The Vercel frontend has no such delay.
+During the demo video, the backend is warmed up beforehand.
 
 ## 5. Demo credentials
 
